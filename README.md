@@ -1,142 +1,89 @@
 # Face Recognition Attendance System
 
-An automated attendance management system using face recognition technology for IPCV (Image Processing and Computer Vision) project.
+High-speed automated attendance system with cloud integration and real-time face recognition.
 
-## Features
+## 🚀 Features
 
-- **Face Recognition**: Automatically identify and verify students using facial recognition
-- **Student Registration**: Register new students with their face data
-- **Attendance Marking**: Mark attendance as Present (P) or Absent (A)
-- **Database Management**: SQLite database for storing student and attendance records
-- **Excel Export**: Export attendance data to Excel format with formatting
-- **GUI Interface**: User-friendly interface with multiple tabs for different functions
-- **Real-time Camera Feed**: Live camera integration for attendance marking
+- **Automatic Face Recognition** - Real-time detection without manual capture
+- **Cloud Storage** - Supabase integration with optimized image storage
+- **High Performance** - 30+ FPS with smart caching
+- **Offline Mode** - Works without internet, syncs when online
+- **Smart Camera** - Auto-releases when not in use
+- **Single Image Policy** - One optimized image per person (~50KB)
 
-## Installation
+## 📋 Prerequisites
 
-1. Install required dependencies:
+- Python 3.8+
+- Webcam
+- Supabase account (free tier works)
+
+## ⚡ Quick Start
+
+1. **Install dependencies:**
 ```bash
 pip install -r requirements.txt
 ```
 
-Note: You may need to install cmake first:
+2. **Setup Supabase:**
+   - Create project at [supabase.com](https://supabase.com)
+   - Run `setup_supabase.sql` in SQL editor
+   - Create storage bucket `student-faces`
+
+3. **Configure:**
 ```bash
-# macOS
-brew install cmake
-
-# Ubuntu/Debian
-sudo apt-get install cmake
-
-# Windows
-# Download from https://cmake.org/download/
+cp .env.example .env
+# Edit .env with your Supabase credentials
 ```
 
-## Usage
-
-### GUI Mode (Recommended)
+4. **Run:**
 ```bash
-python main.py
+# Cloud-enabled system
+python optimized_recognition.py
+
+# Local-only system
+python auto_recognition.py
 ```
 
-### Command Line Options
-```bash
-# Start GUI
-python main.py --mode gui
+## 🎯 Usage
 
-# Camera mode for quick attendance
-python main.py --mode camera
+### Cloud System (optimized_recognition.py)
+- Register face once
+- Auto-recognizes and marks attendance
+- Syncs with Supabase cloud
 
-# Register a student via CLI
-python main.py --mode register --student-id "2021001" --name "John Doe" --image "path/to/image.jpg"
+### Local System (auto_recognition.py)
+- Works completely offline
+- Stores in local SQLite database
 
-# Export attendance
-python main.py --export today
-python main.py --export complete
-python main.py --export date --date 2024-01-15
+## 📁 Key Files
+
+```
+├── optimized_recognition.py  # Cloud-enabled high-speed system
+├── supabase_manager.py       # Database operations
+├── auto_recognition.py       # Standalone local system
+├── setup_supabase.sql       # Database schema
+└── .env.example            # Environment template
 ```
 
-## GUI Features
+## 🔧 Performance Features
 
-### 1. Register Student Tab
-- Enter student details (ID, Name, Email, Department, Year)
-- Upload photo or capture from camera
-- Face encoding stored in database
+- **HOG Algorithm** - Fast face detection
+- **Frame Skipping** - Process every 3rd frame
+- **Image Compression** - JPEG optimization
+- **Memory Cache** - Face encodings cached
+- **Multi-threading** - Parallel processing
 
-### 2. Mark Attendance Tab
-- Real-time camera feed with face detection
-- Automatic face recognition
-- One-click attendance marking
-- Mark absent students option
-
-### 3. View Records Tab
-- View attendance by date
-- View all attendance records
-- Color-coded status (Green for Present, Red for Absent)
-- Summary statistics
-
-### 4. Export Data Tab
-- Export today's attendance
-- Export by specific date
-- Export complete database with summary
-- Individual student reports
-- Excel format with formatting and multiple sheets
-
-## Database Schema
+## 📊 Database Schema
 
 ### Students Table
-- student_id (Primary Key)
-- name
-- email
-- department
-- year
-- face_encoding (BLOB)
+- student_id, name, email, class_name, face_image_url
 
-### Attendance Table
-- id (Auto-increment)
-- student_id (Foreign Key)
-- name
-- date
-- time
-- status (P/A)
+### Attendance Table  
+- student_id, date, check_in_time, confidence_score, status
 
-## Excel Export Features
+### Face Encodings Table
+- student_id, encoding (base64), timestamps
 
-- Daily attendance sheets
-- Complete attendance with summary
-- Student-wise reports
-- Attendance percentage calculations
-- Color-coded status cells
-- Auto-adjusted column widths
-
-## Project Structure
-
-```
-Face-Recognition-Attendance-System/
-├── main.py                    # Main application entry point
-├── gui_app.py                 # GUI interface
-├── face_recognition_module.py # Face detection and recognition
-├── attendance_system.py       # Attendance marking logic
-├── database_manager.py        # Database operations
-├── excel_export.py           # Excel export functionality
-├── requirements.txt          # Python dependencies
-├── database/                 # SQLite database storage
-├── images/                   # Student photos
-│   └── registered_students/
-└── attendance_records/       # Excel export files
-```
-
-## Requirements
-
-- Python 3.7+
-- OpenCV
-- face-recognition
-- dlib
-- pandas
-- openpyxl
-- tkinter
-- numpy
-- Pillow
-
-## License
+## 📄 License
 
 MIT License
