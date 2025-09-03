@@ -1,0 +1,72 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+*.pyo
+*.pyc
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Database files - CONTAINS PERSONAL DATA
+*.db
+*.sqlite
+*.sqlite3
+database/
+
+# Attendance records - CONTAINS PERSONAL DATA
+attendance_records/
+attendance_snapshots/
+
+# Face images - CONTAINS PERSONAL DATA
+faces/
+images/
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.bmp
+
+# Excel files with attendance data
+*.xlsx
+*.xls
+*.csv
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Config files that might contain sensitive data
+config.json
+settings.json
+credentials.json
+
+# Backup files
+*.bak
+*.backup

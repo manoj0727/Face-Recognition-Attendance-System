@@ -5,6 +5,5 @@ numpy==1.24.3
 pandas==2.0.3
 openpyxl==3.1.2
 Pillow==10.0.0
-sqlite3-python==1.0.0
-tkinter-python==0.1.0
+mediapipe==0.10.14
 cmake==3.27.0
