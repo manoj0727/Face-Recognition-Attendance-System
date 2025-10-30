@@ -191,7 +191,17 @@ class ProductionFaceRecognition:
             face_normalized = (face_rgb - 127.5) / 128.0
             face_tensor = torch.FloatTensor(face_normalized).permute(2, 0, 1).unsqueeze(0)
         else:
-            face_tensor = face_tensor.unsqueeze(0)
+            # Fix tensor dimensions - ensure [1, 3, 160, 160]
+            while len(face_tensor.shape) > 4:
+                # Remove extra batch dimensions
+                face_tensor = face_tensor.squeeze(0)
+
+            if len(face_tensor.shape) == 3:
+                # [C, H, W] -> [1, C, H, W]
+                face_tensor = face_tensor.unsqueeze(0)
+            elif len(face_tensor.shape) == 2:
+                # This shouldn't happen, but handle it
+                raise ValueError(f"Unexpected 2D tensor from MTCNN: {face_tensor.shape}")
 
         face_tensor = face_tensor.to(self.device)
 

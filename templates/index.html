@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Recognition Attendance - Clean & Simple</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f5f7fa;
+            color: #333;
+        }
+
+        .header {
+            background: white;
+            padding: 20px 40px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .header p {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 40px 40px;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border-left: 4px solid #3498db;
+        }
+
+        .stat-card h3 {
+            font-size: 32px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .stat-card p {
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .nav-tab {
+            padding: 12px 24px;
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            color: #7f8c8d;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .nav-tab.active {
+            background: #3498db;
+            color: white;
+        }
+
+        .nav-tab:hover {
+            background: #ecf0f1;
+        }
+
+        .nav-tab.active:hover {
+            background: #2980b9;
+        }
+
+        /* Content Sections */
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        /* Video Container */
+        .video-container {
+            position: relative;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            aspect-ratio: 16/9;
+            margin-bottom: 20px;
+        }
+
+        #videoFeed {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Webcam Container for Registration */
+        #webcam {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #229954;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ecf0f1;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        /* Grid Layout */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+
+        /* Attendance List */
+        .attendance-item {
+            padding: 15px;
+            border-bottom: 1px solid #ecf0f1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .attendance-item:last-child {
+            border-bottom: none;
+        }
+
+        .student-name {
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .student-id {
+            font-size: 13px;
+            color: #7f8c8d;
+        }
+
+        .time {
+            font-size: 13px;
+            color: #95a5a6;
+        }
+
+        /* Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        /* Capture Grid */
+        .capture-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .capture-slot {
+            aspect-ratio: 1;
+            border: 2px dashed #ecf0f1;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #bdc3c7;
+            font-size: 14px;
+        }
+
+        .capture-slot.captured {
+            border: 2px solid #27ae60;
+            background: #d5f4e6;
+            color: #27ae60;
+        }
+
+        /* Progress */
+        .progress-bar {
+            height: 8px;
+            background: #ecf0f1;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #3498db;
+            transition: width 0.3s;
+        }
+
+        /* Alert */
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .alert-success {
+            background: #d5f4e6;
+            color: #27ae60;
+        }
+
+        .alert-error {
+            background: #fadbd8;
+            color: #e74c3c;
+        }
+
+        .alert-info {
+            background: #d6eaf8;
+            color: #3498db;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 968px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <h1><i class="fas fa-camera"></i> Face Recognition Attendance System</h1>
+        <p>99.6% Accuracy • Real-time Recognition • Localhost</p>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3 id="totalStudents">0</h3>
+                <p><i class="fas fa-users"></i> Total Students</p>
+            </div>
+            <div class="stat-card" style="border-left-color: #27ae60;">
+                <h3 id="presentToday">0</h3>
+                <p><i class="fas fa-check-circle"></i> Present Today</p>
+            </div>
+            <div class="stat-card" style="border-left-color: #e74c3c;">
+                <h3 id="absentToday">0</h3>
+                <p><i class="fas fa-times-circle"></i> Absent Today</p>
+            </div>
+            <div class="stat-card" style="border-left-color: #f39c12;">
+                <h3 id="attendanceRate">0%</h3>
+                <p><i class="fas fa-percentage"></i> Attendance Rate</p>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="switchSection('attendance')">
+                <i class="fas fa-video"></i> Mark Attendance
+            </button>
+            <button class="nav-tab" onclick="switchSection('register')">
+                <i class="fas fa-user-plus"></i> Register Student
+            </button>
+            <button class="nav-tab" onclick="switchSection('reports')">
+                <i class="fas fa-chart-bar"></i> Reports
+            </button>
+            <button class="nav-tab" onclick="switchSection('students')">
+                <i class="fas fa-users"></i> All Students
+            </button>
+        </div>
+
+        <!-- Attendance Section -->
+        <div class="section active" id="attendanceSection">
+            <div class="grid-2">
+                <div>
+                    <div class="card">
+                        <h2 class="card-title">Live Camera Feed</h2>
+                        <div class="video-container">
+                            <img id="videoFeed" src="" alt="Camera feed">
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn btn-primary" id="startBtn" onclick="startCamera()">
+                                <i class="fas fa-play"></i> Start Camera
+                            </button>
+                            <button class="btn btn-danger" id="stopBtn" onclick="stopCamera()" disabled>
+                                <i class="fas fa-stop"></i> Stop Camera
+                            </button>
+                            <button class="btn btn-success" onclick="exportToday()">
+                                <i class="fas fa-download"></i> Export Today
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="card">
+                        <h2 class="card-title">Today's Attendance</h2>
+                        <div id="attendanceList" style="max-height: 500px; overflow-y: auto;">
+                            <div style="text-align: center; padding: 40px; color: #bdc3c7;">
+                                <i class="fas fa-clipboard-list" style="font-size: 48px; margin-bottom: 10px;"></i>
+                                <p>No attendance marked yet</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Register Section -->
+        <div class="section" id="registerSection">
+            <div class="card">
+                <h2 class="card-title">Register New Student</h2>
+
+                <div class="grid-2">
+                    <div>
+                        <div class="form-group">
+                            <label class="form-label">Student ID *</label>
+                            <input type="text" class="form-input" id="regStudentId" placeholder="e.g., ST001">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Full Name *</label>
+                            <input type="text" class="form-input" id="regName" placeholder="e.g., John Doe">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-input" id="regEmail" placeholder="e.g., john@example.com">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Department</label>
+                            <input type="text" class="form-input" id="regDept" placeholder="e.g., Computer Science">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Year</label>
+                            <input type="text" class="form-input" id="regYear" placeholder="e.g., 2024">
+                        </div>
+
+                        <div class="alert alert-info">
+                            <strong>Instructions:</strong><br>
+                            1. Fill in student details<br>
+                            2. Click "Start Registration"<br>
+                            3. Capture 3-7 photos at different angles<br>
+                            4. Click "Complete Registration"
+                        </div>
+
+                        <div id="regMessage"></div>
+
+                        <div style="display: flex; gap: 10px; margin-top: 20px;">
+                            <button class="btn btn-primary" id="startRegBtn" onclick="startRegistration()">
+                                <i class="fas fa-camera"></i> Start Registration
+                            </button>
+                            <button class="btn btn-success" id="completeRegBtn" onclick="completeRegistration()" disabled>
+                                <i class="fas fa-check"></i> Complete Registration
+                            </button>
+                            <button class="btn btn-danger" onclick="cancelRegistration()">
+                                <i class="fas fa-times"></i> Cancel
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="card-title">Webcam Preview</h3>
+                        <video id="webcam" autoplay playsinline style="display:none;"></video>
+                        <canvas id="canvas" style="display:none;"></canvas>
+                        <div id="webcamPlaceholder" style="background: #ecf0f1; border-radius: 8px; aspect-ratio: 4/3; display: flex; align-items: center; justify-content: center; color: #7f8c8d;">
+                            <div style="text-align: center;">
+                                <i class="fas fa-camera" style="font-size: 48px; margin-bottom: 10px;"></i>
+                                <p>Webcam will appear here</p>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 20px;">
+                            <button class="btn btn-primary" id="captureBtn" onclick="captureImage()" disabled>
+                                <i class="fas fa-camera"></i> Capture Photo
+                            </button>
+                        </div>
+
+                        <div style="margin-top: 20px;">
+                            <strong>Captured Photos: <span id="captureCount">0/7</span></strong>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="captureProgress" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <div class="capture-grid" id="captureGrid">
+                            <div class="capture-slot">1</div>
+                            <div class="capture-slot">2</div>
+                            <div class="capture-slot">3</div>
+                            <div class="capture-slot">4</div>
+                            <div class="capture-slot">5</div>
+                            <div class="capture-slot">6</div>
+                            <div class="capture-slot">7</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reports Section -->
+        <div class="section" id="reportsSection">
+            <div class="card">
+                <h2 class="card-title">Attendance Reports</h2>
+
+                <!-- Quick Actions -->
+                <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+                    <button class="btn btn-primary" onclick="viewTodayReport()" style="background: #27ae60;">
+                        <i class="fas fa-calendar-day"></i> Today's Report
+                    </button>
+                    <div style="display: flex; gap: 10px; flex: 1;">
+                        <input type="date" class="form-input" id="reportDate" style="max-width: 200px;">
+                        <button class="btn btn-primary" onclick="viewByDate()">
+                            <i class="fas fa-search"></i> View Date
+                        </button>
+                        <button class="btn btn-success" onclick="exportByDate()">
+                            <i class="fas fa-file-excel"></i> Export
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Report Info -->
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: none;" id="reportInfo">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <strong>Report Date:</strong> <span id="reportInfoDate">-</span>
+                        </div>
+                        <div>
+                            <span style="color: #27ae60; font-weight: 600;">
+                                <i class="fas fa-check-circle"></i> Present: <span id="reportPresentCount">0</span>
+                            </span>
+                            <span style="margin-left: 20px; color: #e74c3c; font-weight: 600;">
+                                <i class="fas fa-times-circle"></i> Absent: <span id="reportAbsentCount">0</span>
+                            </span>
+                            <span style="margin-left: 20px; color: #3498db; font-weight: 600;">
+                                <i class="fas fa-percentage"></i> Rate: <span id="reportAttendanceRate">0%</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <table id="reportsTable">
+                    <thead>
+                        <tr>
+                            <th>Student ID</th>
+                            <th>Name</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reportsBody">
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 40px; color: #bdc3c7;">
+                                <i class="fas fa-calendar-alt" style="font-size: 48px; margin-bottom: 10px;"></i>
+                                <p>Click "Today's Report" to view attendance</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Students Section -->
+        <div class="section" id="studentsSection">
+            <div class="card">
+                <h2 class="card-title">All Registered Students</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Student ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Department</th>
+                            <th>Year</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentsBody">
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 40px; color: #bdc3c7;">
+                                Loading...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize
+        document.getElementById('reportDate').valueAsDate = new Date();
+        let webcamStream = null;
+        let capturedCount = 0;
+
+        // Switch Sections
+        function switchSection(section) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+
+            document.getElementById(section + 'Section').classList.add('active');
+            event.target.classList.add('active');
+
+            if (section === 'students') {
+                loadStudents();
+            } else if (section === 'reports') {
+                viewTodayReport();
+            }
+        }
+
+        // Update Stats
+        function updateStats() {
+            fetch('/api/stats')
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById('totalStudents').textContent = data.total_students;
+                    document.getElementById('presentToday').textContent = data.present_today;
+                    document.getElementById('absentToday').textContent = data.absent_today;
+                    document.getElementById('attendanceRate').textContent = data.attendance_rate.toFixed(1) + '%';
+                });
+        }
+
+        // Camera Functions
+        function startCamera() {
+            fetch('/api/start_camera', { method: 'POST' })
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById('videoFeed').src = '/video_feed?' + Date.now();
+                    document.getElementById('startBtn').disabled = true;
+                    document.getElementById('stopBtn').disabled = false;
+
+                    // Clear any existing interval
+                    if (attendanceCheckInterval) {
+                        clearInterval(attendanceCheckInterval);
+                    }
+
+                    // Set up attendance checking interval
+                    attendanceCheckInterval = setInterval(refreshAttendance, 2000);
+                });
+        }
+
+        function stopCamera() {
+            fetch('/api/stop_camera', { method: 'POST' })
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById('videoFeed').src = '';
+                    document.getElementById('startBtn').disabled = false;
+                    document.getElementById('stopBtn').disabled = true;
+                });
+        }
+
+        // Attendance tracking
+        let previousAttendanceCount = 0;
+        let attendanceCheckInterval = null;
+
+        function playSuccessSound() {
+            // Create a pleasant beep sound using Web Audio API
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+            // Success melody: two ascending tones
+            const playTone = (frequency, startTime, duration) => {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+
+                oscillator.frequency.value = frequency;
+                oscillator.type = 'sine';
+
+                gainNode.gain.setValueAtTime(0.3, startTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
+
+                oscillator.start(startTime);
+                oscillator.stop(startTime + duration);
+            };
+
+            const now = audioContext.currentTime;
+            playTone(800, now, 0.15);  // First tone
+            playTone(1000, now + 0.15, 0.2);  // Second tone (higher)
+        }
+
+        function showSuccessNotification(name, studentId) {
+            // Create floating success notification
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 20px 30px;
+                border-radius: 15px;
+                box-shadow: 0 10px 40px rgba(102, 126, 234, 0.4);
+                z-index: 10000;
+                font-family: 'Poppins', sans-serif;
+                min-width: 300px;
+                animation: slideInRight 0.5s ease-out;
+            `;
+            notification.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="font-size: 40px;">✅</div>
+                    <div>
+                        <div style="font-weight: 600; font-size: 18px; margin-bottom: 5px;">Attendance Marked!</div>
+                        <div style="font-size: 14px; opacity: 0.9;">${name}</div>
+                        <div style="font-size: 12px; opacity: 0.8;">${studentId}</div>
+                    </div>
+                </div>
+            `;
+
+            // Add slide-in animation
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideInRight {
+                    from {
+                        transform: translateX(400px);
+                        opacity: 0;
+                    }
+                    to {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
+                }
+                @keyframes slideOutRight {
+                    from {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
+                    to {
+                        transform: translateX(400px);
+                        opacity: 0;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+
+            document.body.appendChild(notification);
+
+            // Remove after 4 seconds with animation
+            setTimeout(() => {
+                notification.style.animation = 'slideOutRight 0.5s ease-in';
+                setTimeout(() => notification.remove(), 500);
+            }, 4000);
+        }
+
+        function refreshAttendance() {
+            fetch('/api/attendance/today')
+                .then(r => r.json())
+                .then(data => {
+                    const list = document.getElementById('attendanceList');
+
+                    // Check if new attendance was marked
+                    if (data.attendance.length > previousAttendanceCount && previousAttendanceCount > 0) {
+                        // New attendance detected!
+                        const latestAttendance = data.attendance[0]; // Most recent is first
+
+                        // Play success sound
+                        playSuccessSound();
+
+                        // Show success notification
+                        showSuccessNotification(latestAttendance.name, latestAttendance.student_id);
+
+                        // Stop camera automatically
+                        setTimeout(() => {
+                            stopCamera();
+                            if (attendanceCheckInterval) {
+                                clearInterval(attendanceCheckInterval);
+                                attendanceCheckInterval = null;
+                            }
+                        }, 1000);
+                    }
+
+                    previousAttendanceCount = data.attendance.length;
+
+                    if (data.attendance.length === 0) {
+                        list.innerHTML = '<div style="text-align: center; padding: 40px; color: #bdc3c7;"><i class="fas fa-clipboard-list" style="font-size: 48px; margin-bottom: 10px;"></i><p>No attendance marked yet</p></div>';
+                    } else {
+                        list.innerHTML = data.attendance.map(r => `
+                            <div class="attendance-item">
+                                <div>
+                                    <div class="student-name">${r.name}</div>
+                                    <div class="student-id">${r.student_id}</div>
+                                </div>
+                                <div class="time">${r.time}</div>
+                            </div>
+                        `).join('');
+                    }
+                    updateStats();
+                });
+        }
+
+        function exportToday() {
+            window.location.href = '/api/export/today';
+        }
+
+        // Registration Functions
+        async function startRegistration() {
+            const studentId = document.getElementById('regStudentId').value;
+            const name = document.getElementById('regName').value;
+
+            if (!studentId || !name) {
+                showMessage('Student ID and Name are required!', 'error');
+                return;
+            }
+
+            const data = {
+                student_id: studentId,
+                name: name,
+                email: document.getElementById('regEmail').value,
+                department: document.getElementById('regDept').value,
+                year: document.getElementById('regYear').value
+            };
+
+            const response = await fetch('/api/register/start', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                showMessage('Registration started! Now capture 3-7 photos.', 'success');
+                startWebcam();
+                document.getElementById('startRegBtn').disabled = true;
+                capturedCount = 0;
+                updateCaptureProgress();
+            } else {
+                showMessage(result.error, 'error');
+            }
+        }
+
+        function startWebcam() {
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(stream => {
+                    webcamStream = stream;
+                    const video = document.getElementById('webcam');
+                    video.srcObject = stream;
+                    video.style.display = 'block';
+                    document.getElementById('webcamPlaceholder').style.display = 'none';
+                    document.getElementById('captureBtn').disabled = false;
+                })
+                .catch(err => {
+                    showMessage('Cannot access webcam: ' + err.message, 'error');
+                });
+        }
+
+        async function captureImage() {
+            const video = document.getElementById('webcam');
+            const canvas = document.getElementById('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+
+            const imageData = canvas.toDataURL('image/jpeg');
+
+            const response = await fetch('/api/register/capture', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ image: imageData })
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                capturedCount = result.count;
+                updateCaptureProgress();
+                showMessage(`Image ${result.count} captured! Quality: ${result.quality.overall.toFixed(2)}`, 'success');
+
+                if (capturedCount >= 3) {
+                    document.getElementById('completeRegBtn').disabled = false;
+                }
+            } else {
+                showMessage(result.error, 'error');
+            }
+        }
+
+        function updateCaptureProgress() {
+            document.getElementById('captureCount').textContent = `${capturedCount}/7`;
+            document.getElementById('captureProgress').style.width = (capturedCount / 7 * 100) + '%';
+
+            const slots = document.querySelectorAll('.capture-slot');
+            slots.forEach((slot, i) => {
+                if (i < capturedCount) {
+                    slot.classList.add('captured');
+                    slot.innerHTML = '<i class="fas fa-check"></i>';
+                }
+            });
+        }
+
+        async function completeRegistration() {
+            const response = await fetch('/api/register/complete', { method: 'POST' });
+            const result = await response.json();
+
+            if (result.success) {
+                showMessage(result.message, 'success');
+                stopWebcam();
+                clearRegistrationForm();
+                updateStats();
+            } else {
+                showMessage(result.error, 'error');
+            }
+        }
+
+        function cancelRegistration() {
+            fetch('/api/register/cancel', { method: 'POST' });
+            stopWebcam();
+            clearRegistrationForm();
+        }
+
+        function stopWebcam() {
+            if (webcamStream) {
+                webcamStream.getTracks().forEach(track => track.stop());
+                document.getElementById('webcam').style.display = 'none';
+                document.getElementById('webcamPlaceholder').style.display = 'flex';
+                document.getElementById('captureBtn').disabled = true;
+            }
+        }
+
+        function clearRegistrationForm() {
+            document.getElementById('regStudentId').value = '';
+            document.getElementById('regName').value = '';
+            document.getElementById('regEmail').value = '';
+            document.getElementById('regDept').value = '';
+            document.getElementById('regYear').value = '';
+            document.getElementById('startRegBtn').disabled = false;
+            document.getElementById('completeRegBtn').disabled = true;
+            capturedCount = 0;
+            updateCaptureProgress();
+            document.querySelectorAll('.capture-slot').forEach((slot, i) => {
+                slot.classList.remove('captured');
+                slot.textContent = i + 1;
+            });
+        }
+
+        function showMessage(msg, type) {
+            const div = document.getElementById('regMessage');
+            div.className = 'alert alert-' + type;
+            div.textContent = msg;
+            setTimeout(() => div.textContent = '', 5000);
+        }
+
+        // Reports
+        function viewTodayReport() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('reportDate').value = today;
+            viewByDate();
+        }
+
+        function viewByDate() {
+            const date = document.getElementById('reportDate').value;
+            if (!date) {
+                alert('Please select a date');
+                return;
+            }
+
+            fetch(`/api/attendance/by_date?date=${date}`)
+                .then(r => r.json())
+                .then(data => {
+                    displayReportData(data, date);
+                });
+        }
+
+        function displayReportData(data, date) {
+            const tbody = document.getElementById('reportsBody');
+            const reportInfo = document.getElementById('reportInfo');
+
+            // Calculate stats
+            const totalStudents = data.total_students || 0;
+            const presentCount = data.attendance.length;
+            const absentCount = totalStudents - presentCount;
+            const attendanceRate = totalStudents > 0 ? (presentCount / totalStudents * 100).toFixed(1) : 0;
+
+            // Update report info
+            document.getElementById('reportInfoDate').textContent = formatDate(date);
+            document.getElementById('reportPresentCount').textContent = presentCount;
+            document.getElementById('reportAbsentCount').textContent = absentCount;
+            document.getElementById('reportAttendanceRate').textContent = attendanceRate + '%';
+            reportInfo.style.display = 'block';
+
+            // Update table
+            if (data.attendance.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align:center;padding:40px;color:#bdc3c7;">
+                            <i class="fas fa-inbox" style="font-size: 48px; margin-bottom: 10px;"></i>
+                            <p>No attendance records found for ${formatDate(date)}</p>
+                        </td>
+                    </tr>`;
+            } else {
+                tbody.innerHTML = data.attendance.map((r, index) => `
+                    <tr style="animation: fadeIn 0.3s ease-in ${index * 0.05}s both;">
+                        <td style="font-weight: 500;">${r.student_id}</td>
+                        <td>${r.name}</td>
+                        <td>${formatDate(date)}</td>
+                        <td style="color: #667eea; font-weight: 500;">${r.time}</td>
+                        <td>
+                            <span style="display: inline-block; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; background: #d4edda; color: #155724;">
+                                ✅ Present
+                            </span>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        function formatDate(dateStr) {
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            return new Date(dateStr + 'T00:00:00').toLocaleDateString('en-US', options);
+        }
+
+        function exportByDate() {
+            const date = document.getElementById('reportDate').value;
+            if (!date) {
+                alert('Please select a date');
+                return;
+            }
+            window.location.href = `/api/export/by_date?date=${date}`;
+        }
+
+        // Students
+        function loadStudents() {
+            fetch('/api/students')
+                .then(r => r.json())
+                .then(data => {
+                    const tbody = document.getElementById('studentsBody');
+                    if (data.students.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:#bdc3c7;">No students registered</td></tr>';
+                    } else {
+                        tbody.innerHTML = data.students.map(s => `
+                            <tr>
+                                <td>${s.student_id}</td>
+                                <td>${s.name}</td>
+                                <td>${s.email || '-'}</td>
+                                <td>${s.department || '-'}</td>
+                                <td>${s.year || '-'}</td>
+                            </tr>
+                        `).join('');
+                    }
+                });
+        }
+
+        // Initialize
+        updateStats();
+        refreshAttendance();
+        setInterval(updateStats, 5000);
+    </script>
+</body>
+</html>
