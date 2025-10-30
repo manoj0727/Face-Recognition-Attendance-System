@@ -511,6 +511,22 @@ class ProductionFaceRecognition:
             })
         return students
 
+    def delete_student(self, student_id: str) -> bool:
+        """Delete a student from the database"""
+        try:
+            if student_id in self.encodings_db:
+                del self.encodings_db[student_id]
+            if student_id in self.student_metadata:
+                del self.student_metadata[student_id]
+
+            # Save updated database
+            self._save_database()
+            print(f"✅ Deleted student: {student_id}")
+            return True
+        except Exception as e:
+            print(f"❌ Error deleting student: {e}")
+            return False
+
 
 # Simple test
 if __name__ == "__main__":

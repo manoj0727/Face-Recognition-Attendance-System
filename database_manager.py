@@ -101,10 +101,28 @@ class DatabaseManager:
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
         cursor.execute('''
-            SELECT student_id, name, date, time, status 
-            FROM attendance 
+            SELECT student_id, name, date, time, status
+            FROM attendance
             ORDER BY date DESC, time DESC
         ''')
         records = cursor.fetchall()
         conn.close()
         return records
+
+    def delete_student(self, student_id):
+        """Delete student and all their attendance records"""
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+
+        try:
+            # Delete attendance records first (foreign key constraint)
+            cursor.execute('DELETE FROM attendance WHERE student_id = ?', (student_id,))
+            # Delete student
+            cursor.execute('DELETE FROM students WHERE student_id = ?', (student_id,))
+            conn.commit()
+            return True
+        except Exception as e:
+            print(f"Error deleting student: {e}")
+            return False
+        finally:
+            conn.close()

@@ -8,7 +8,6 @@ from flask_cors import CORS
 import cv2
 import numpy as np
 from datetime import datetime
-import json
 import os
 import base64
 import pickle
@@ -273,6 +272,32 @@ def get_students():
     """Get all registered students"""
     students = face_system.get_all_students()
     return jsonify({'students': students, 'total': len(students)})
+
+@app.route('/api/students/<student_id>', methods=['DELETE'])
+def delete_student(student_id):
+    """Delete a student"""
+    global marked_today
+
+    # Delete from production face recognition system
+    success_face = face_system.delete_student(student_id)
+
+    # Delete from database
+    success_db = db_manager.delete_student(student_id)
+
+    # Remove from today's marked attendance
+    if student_id in marked_today:
+        marked_today.remove(student_id)
+
+    if success_face or success_db:
+        return jsonify({
+            'success': True,
+            'message': f'Student {student_id} deleted successfully'
+        })
+    else:
+        return jsonify({
+            'success': False,
+            'error': 'Failed to delete student'
+        }), 500
 
 @app.route('/api/attendance/today', methods=['GET'])
 def get_today_attendance():

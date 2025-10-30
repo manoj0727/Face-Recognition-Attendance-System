@@ -838,11 +838,12 @@
                             <th>Email</th>
                             <th>Department</th>
                             <th>Year</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody id="studentsBody">
                         <tr>
-                            <td colspan="5" style="text-align: center; padding: 40px; color: #bdc3c7;">
+                            <td colspan="6" style="text-align: center; padding: 40px; color: #bdc3c7;">
                                 Loading...
                             </td>
                         </tr>
@@ -970,8 +971,9 @@
         }
 
         // Attendance tracking
-        let previousAttendanceCount = 0;
+        let markedStudentIds = new Set();
         let attendanceCheckInterval = null;
+        let isInitialLoad = true;
 
         function playSuccessSound() {
             // Create a pleasant beep sound using Web Audio API
@@ -1070,18 +1072,30 @@
                 .then(data => {
                     const list = document.getElementById('attendanceList');
 
-                    // Check if new attendance was marked
-                    if (data.attendance.length > previousAttendanceCount && previousAttendanceCount > 0) {
-                        // New attendance detected!
-                        const latestAttendance = data.attendance[0]; // Most recent is first
+                    // Check for newly marked students
+                    let newAttendanceMarked = false;
+                    if (data.attendance && data.attendance.length > 0) {
+                        data.attendance.forEach(record => {
+                            // If this student wasn't marked before, show popup
+                            if (!markedStudentIds.has(record.student_id)) {
+                                markedStudentIds.add(record.student_id);
 
-                        // Play success sound
-                        playSuccessSound();
+                                // Only show notification if NOT initial load
+                                if (!isInitialLoad) {
+                                    newAttendanceMarked = true;
 
-                        // Show success notification
-                        showSuccessNotification(latestAttendance.name, latestAttendance.student_id);
+                                    // Play success sound
+                                    playSuccessSound();
 
-                        // Stop camera automatically
+                                    // Show success notification
+                                    showSuccessNotification(record.name, record.student_id);
+                                }
+                            }
+                        });
+                    }
+
+                    // Stop camera if new attendance was marked
+                    if (newAttendanceMarked) {
                         setTimeout(() => {
                             stopCamera();
                             if (attendanceCheckInterval) {
@@ -1091,7 +1105,10 @@
                         }, 1000);
                     }
 
-                    previousAttendanceCount = data.attendance.length;
+                    // After first load, all future loads should show popups
+                    if (isInitialLoad) {
+                        isInitialLoad = false;
+                    }
 
                     if (data.attendance.length === 0) {
                         list.innerHTML = '<div style="text-align: center; padding: 40px; color: #bdc3c7;"><i class="fas fa-clipboard-list" style="font-size: 48px; margin-bottom: 10px;"></i><p>No attendance marked yet</p></div>';
@@ -1344,7 +1361,7 @@
                 .then(data => {
                     const tbody = document.getElementById('studentsBody');
                     if (data.students.length === 0) {
-                        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:#bdc3c7;">No students registered</td></tr>';
+                        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:#bdc3c7;">No students registered</td></tr>';
                     } else {
                         tbody.innerHTML = data.students.map(s => `
                             <tr>
@@ -1353,10 +1370,39 @@
                                 <td>${s.email || '-'}</td>
                                 <td>${s.department || '-'}</td>
                                 <td>${s.year || '-'}</td>
+                                <td>
+                                    <button class="btn btn-danger" style="padding: 5px 12px; font-size: 13px;" onclick="deleteStudent('${s.student_id}', '${s.name}')">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                </td>
                             </tr>
                         `).join('');
                     }
                 });
+        }
+
+        function deleteStudent(studentId, studentName) {
+            if (!confirm(`Are you sure you want to delete ${studentName} (${studentId})?\n\nThis will remove all their data and attendance records permanently.`)) {
+                return;
+            }
+
+            fetch(`/api/students/${studentId}`, {
+                method: 'DELETE'
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification(`Student ${studentName} deleted successfully`, 'success');
+                    loadStudents();
+                    updateStats();
+                    refreshAttendance();
+                } else {
+                    showNotification(data.error || 'Failed to delete student', 'error');
+                }
+            })
+            .catch(err => {
+                showNotification('Error deleting student: ' + err.message, 'error');
+            });
         }
 
         // Initialize
