@@ -135,17 +135,219 @@
         /* Video Container */
         .video-container {
             position: relative;
-            background: #000;
-            border-radius: 8px;
+            background: #000000;
+            border-radius: 12px;
             overflow: hidden;
             aspect-ratio: 16/9;
             margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            border: 2px solid #333333;
+        }
+
+        .video-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                repeating-linear-gradient(
+                    0deg,
+                    rgba(255, 255, 255, 0.02) 0px,
+                    transparent 1px,
+                    transparent 2px,
+                    rgba(255, 255, 255, 0.02) 3px
+                );
+            pointer-events: none;
+            z-index: 1;
         }
 
         #videoFeed {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: contain;
+            display: block;
+            position: relative;
+            z-index: 2;
+            background: #000;
+        }
+
+        .video-placeholder {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            z-index: 2;
+            text-align: center;
+            padding: 40px;
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        .video-placeholder i {
+            font-size: 80px;
+            margin-bottom: 20px;
+            color: #3498db;
+            opacity: 0.9;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .video-placeholder h3 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: white;
+        }
+
+        .video-placeholder p {
+            font-size: 14px;
+            opacity: 0.8;
+            max-width: 300px;
+            line-height: 1.5;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .video-loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 3;
+            display: none;
+        }
+
+        .video-loading.active {
+            display: block;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 0.6;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.05);
+            }
+        }
+
+        .camera-status {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 4;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .camera-status.active {
+            opacity: 1;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #27ae60;
+            border-radius: 50%;
+            animation: blink 1.5s ease-in-out infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .camera-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            height: 80%;
+            border: 3px solid rgba(39, 174, 96, 0.6);
+            border-radius: 12px;
+            z-index: 4;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .camera-overlay.active {
+            opacity: 1;
+        }
+
+        .camera-overlay::before,
+        .camera-overlay::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #27ae60;
+        }
+
+        .camera-overlay::before {
+            top: -3px;
+            left: -3px;
+            border-right: none;
+            border-bottom: none;
+        }
+
+        .camera-overlay::after {
+            bottom: -3px;
+            right: -3px;
+            border-left: none;
+            border-top: none;
+        }
+
+        .corner-tl, .corner-tr, .corner-bl, .corner-br {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #27ae60;
+        }
+
+        .corner-tr {
+            top: -3px;
+            right: -3px;
+            border-left: none;
+            border-bottom: none;
+        }
+
+        .corner-bl {
+            bottom: -3px;
+            left: -3px;
+            border-right: none;
+            border-top: none;
         }
 
         /* Webcam Container for Registration */
@@ -283,26 +485,38 @@
         /* Capture Grid */
         .capture-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 10px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
             margin: 20px 0;
         }
 
         .capture-slot {
             aspect-ratio: 1;
-            border: 2px dashed #ecf0f1;
-            border-radius: 8px;
+            border: 3px dashed #ecf0f1;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: #bdc3c7;
-            font-size: 14px;
+            font-size: 24px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .capture-slot:hover {
+            border-color: #d5d8dc;
         }
 
         .capture-slot.captured {
-            border: 2px solid #27ae60;
-            background: #d5f4e6;
+            border: 3px solid #27ae60;
+            background: linear-gradient(135deg, #d5f4e6 0%, #a9dfbf 100%);
             color: #27ae60;
+            box-shadow: 0 4px 15px rgba(39, 174, 96, 0.2);
+        }
+
+        .capture-slot.captured i {
+            font-size: 36px;
         }
 
         /* Progress */
@@ -364,7 +578,6 @@
     <!-- Header -->
     <div class="header">
         <h1><i class="fas fa-camera"></i> Face Recognition Attendance System</h1>
-        <p>99.6% Accuracy • Real-time Recognition • Localhost</p>
     </div>
 
     <!-- Main Container -->
@@ -412,9 +625,33 @@
                     <div class="card">
                         <h2 class="card-title">Live Camera Feed</h2>
                         <div class="video-container">
-                            <img id="videoFeed" src="" alt="Camera feed">
+                            <img id="videoFeed" src="" alt="Camera feed" style="display: none;">
+
+                            <!-- Placeholder when camera is off -->
+                            <div class="video-placeholder" id="videoPlaceholder">
+                                <i class="fas fa-video"></i>
+                                <h3>Camera Ready</h3>
+                                <p>Click "Start Camera" to begin face recognition and mark attendance</p>
+                            </div>
+
+                            <!-- Loading spinner -->
+                            <div class="video-loading" id="videoLoading">
+                                <div class="spinner"></div>
+                            </div>
+
+                            <!-- Camera status indicator -->
+                            <div class="camera-status" id="cameraStatus">
+                                <div class="status-dot"></div>
+                                <span>LIVE</span>
+                            </div>
+
+                            <!-- Face detection overlay -->
+                            <div class="camera-overlay" id="cameraOverlay">
+                                <div class="corner-tr"></div>
+                                <div class="corner-bl"></div>
+                            </div>
                         </div>
-                        <div style="display: flex; gap: 10px;">
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                             <button class="btn btn-primary" id="startBtn" onclick="startCamera()">
                                 <i class="fas fa-play"></i> Start Camera
                             </button>
@@ -473,7 +710,7 @@
                             <strong>Instructions:</strong><br>
                             1. Fill in student details<br>
                             2. Click "Start Registration"<br>
-                            3. Capture 3-7 photos at different angles<br>
+                            3. Capture 3 photos at different angles<br>
                             4. Click "Complete Registration"
                         </div>
 
@@ -510,7 +747,7 @@
                         </div>
 
                         <div style="margin-top: 20px;">
-                            <strong>Captured Photos: <span id="captureCount">0/7</span></strong>
+                            <strong>Captured Photos: <span id="captureCount">0/3</span></strong>
                             <div class="progress-bar">
                                 <div class="progress-fill" id="captureProgress" style="width: 0%"></div>
                             </div>
@@ -520,10 +757,6 @@
                             <div class="capture-slot">1</div>
                             <div class="capture-slot">2</div>
                             <div class="capture-slot">3</div>
-                            <div class="capture-slot">4</div>
-                            <div class="capture-slot">5</div>
-                            <div class="capture-slot">6</div>
-                            <div class="capture-slot">7</div>
                         </div>
                     </div>
                 </div>
@@ -654,12 +887,39 @@
 
         // Camera Functions
         function startCamera() {
+            // Show loading state
+            const videoLoading = document.getElementById('videoLoading');
+            const videoPlaceholder = document.getElementById('videoPlaceholder');
+            const startBtn = document.getElementById('startBtn');
+
+            videoLoading.classList.add('active');
+            videoPlaceholder.style.opacity = '0.3';
+            startBtn.disabled = true;
+
             fetch('/api/start_camera', { method: 'POST' })
                 .then(r => r.json())
                 .then(data => {
-                    document.getElementById('videoFeed').src = '/video_feed?' + Date.now();
-                    document.getElementById('startBtn').disabled = true;
-                    document.getElementById('stopBtn').disabled = false;
+                    const videoFeed = document.getElementById('videoFeed');
+                    const cameraStatus = document.getElementById('cameraStatus');
+                    const cameraOverlay = document.getElementById('cameraOverlay');
+                    const stopBtn = document.getElementById('stopBtn');
+
+                    // Hide placeholder and loading after a short delay
+                    setTimeout(() => {
+                        videoLoading.classList.remove('active');
+                        videoPlaceholder.style.display = 'none';
+                    }, 500);
+
+                    // Show video feed immediately
+                    videoFeed.style.display = 'block';
+                    videoFeed.src = '/video_feed?' + Date.now();
+
+                    // Show indicators
+                    cameraStatus.classList.add('active');
+                    cameraOverlay.classList.add('active');
+
+                    // Update buttons
+                    stopBtn.disabled = false;
 
                     // Clear any existing interval
                     if (attendanceCheckInterval) {
@@ -668,16 +928,44 @@
 
                     // Set up attendance checking interval
                     attendanceCheckInterval = setInterval(refreshAttendance, 2000);
+                })
+                .catch(error => {
+                    console.error('Error starting camera:', error);
+                    videoLoading.classList.remove('active');
+                    videoPlaceholder.style.opacity = '1';
+                    startBtn.disabled = false;
+                    alert('Failed to start camera. Please check if your camera is connected and try again.');
                 });
         }
 
         function stopCamera() {
+            const videoFeed = document.getElementById('videoFeed');
+            const videoPlaceholder = document.getElementById('videoPlaceholder');
+            const cameraStatus = document.getElementById('cameraStatus');
+            const cameraOverlay = document.getElementById('cameraOverlay');
+
             fetch('/api/stop_camera', { method: 'POST' })
                 .then(r => r.json())
                 .then(data => {
-                    document.getElementById('videoFeed').src = '';
+                    // Hide video and indicators
+                    videoFeed.style.display = 'none';
+                    videoFeed.src = '';
+                    cameraStatus.classList.remove('active');
+                    cameraOverlay.classList.remove('active');
+
+                    // Show placeholder
+                    videoPlaceholder.style.display = 'flex';
+                    videoPlaceholder.style.opacity = '1';
+
+                    // Update buttons
                     document.getElementById('startBtn').disabled = false;
                     document.getElementById('stopBtn').disabled = true;
+
+                    // Clear attendance check interval
+                    if (attendanceCheckInterval) {
+                        clearInterval(attendanceCheckInterval);
+                        attendanceCheckInterval = null;
+                    }
                 });
         }
 
@@ -906,8 +1194,8 @@
         }
 
         function updateCaptureProgress() {
-            document.getElementById('captureCount').textContent = `${capturedCount}/7`;
-            document.getElementById('captureProgress').style.width = (capturedCount / 7 * 100) + '%';
+            document.getElementById('captureCount').textContent = `${capturedCount}/3`;
+            document.getElementById('captureProgress').style.width = (capturedCount / 3 * 100) + '%';
 
             const slots = document.querySelectorAll('.capture-slot');
             slots.forEach((slot, i) => {
