@@ -320,7 +320,7 @@ def get_attendance_by_date():
         })
 
     # Get total registered students
-    total_students = len(face_system.known_face_ids)
+    total_students = len(face_system.encodings_db)
 
     return jsonify({
         'date': date,
