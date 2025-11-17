@@ -1094,17 +1094,6 @@
                         });
                     }
 
-                    // Stop camera if new attendance was marked
-                    if (newAttendanceMarked) {
-                        setTimeout(() => {
-                            stopCamera();
-                            if (attendanceCheckInterval) {
-                                clearInterval(attendanceCheckInterval);
-                                attendanceCheckInterval = null;
-                            }
-                        }, 1000);
-                    }
-
                     // After first load, all future loads should show popups
                     if (isInitialLoad) {
                         isInitialLoad = false;

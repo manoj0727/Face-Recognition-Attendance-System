@@ -41,14 +41,17 @@ def load_today_attendance():
 load_today_attendance()
 
 def get_camera():
-    """Get or create camera instance"""
+    """Get or create camera instance with optimized settings"""
     global camera, is_camera_active
     with camera_lock:
         if camera is None or not camera.isOpened():
             camera = cv2.VideoCapture(0)
+            # Optimized settings for better performance
             camera.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
             camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
             camera.set(cv2.CAP_PROP_FPS, 30)
+            camera.set(cv2.CAP_PROP_BUFFERSIZE, 1)  # Reduce buffer lag
+            camera.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))  # Better codec
             is_camera_active = True
     return camera
 
@@ -62,7 +65,7 @@ def release_camera():
             is_camera_active = False
 
 def generate_frames():
-    """Generate video frames for streaming"""
+    """Generate video frames for streaming with optimized performance"""
     global marked_today
 
     while is_camera_active:
@@ -90,14 +93,12 @@ def generate_frames():
         # Draw results
         frame = face_system.draw_results(frame, recognized_faces)
 
-        # Encode frame
-        ret, buffer = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, 85])
+        # Encode frame with higher quality for better recognition
+        ret, buffer = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, 95])
         frame_bytes = buffer.tobytes()
 
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
-
-        time.sleep(0.03)  # ~30 FPS
 
 @app.route('/')
 def index():

@@ -57,17 +57,17 @@ class ProductionFaceRecognition:
         self.encodings_db = defaultdict(list)  # student_id -> list of embeddings
         self.student_metadata = {}  # student_id -> metadata
 
-        # Configuration
+        # Configuration - Optimized for better accuracy
         self.min_face_size = 60  # Minimum face dimensions
-        self.quality_threshold = 0.4  # Minimum quality score (lowered for speed)
-        self.recognition_threshold = 0.65  # Cosine similarity threshold (lowered for speed)
+        self.quality_threshold = 0.65  # Minimum quality score (improved for accuracy)
+        self.recognition_threshold = 0.75  # Cosine similarity threshold (stricter for accuracy)
         self.min_registration_images = 3  # Minimum images for registration
         self.max_registration_images = 7  # Maximum images for registration
 
-        # Performance optimization
-        self.frame_skip = 1  # Process every frame for faster recognition
+        # Performance optimization - Balanced for speed and accuracy
+        self.frame_skip = 1  # Process every frame for better recognition
         self.frame_counter = 0
-        self.image_scale = 0.5  # Scale down images for faster processing
+        self.image_scale = 0.75  # Higher quality scaling (75% instead of 50%)
 
         # Anti-spoofing
         self.enable_spoofing_detection = True
@@ -144,22 +144,57 @@ class ProductionFaceRecognition:
 
     def _assess_face_quality(self, face_img: np.ndarray, landmarks=None) -> Dict[str, float]:
         """
-        Fast face quality assessment (optimized for speed)
+        Improved face quality assessment for better accuracy
         Returns quality metrics
         """
-        # Simplified quality check for speed
         h, w = face_img.shape[:2]
 
+        # Convert to grayscale for analysis
+        gray = cv2.cvtColor(face_img, cv2.COLOR_BGR2GRAY)
+
+        # 1. Sharpness (Laplacian variance)
+        laplacian_var = cv2.Laplacian(gray, cv2.CV_64F).var()
+        sharpness = min(laplacian_var / 500.0, 1.0)  # Normalize
+
+        # 2. Brightness (mean intensity)
+        mean_brightness = np.mean(gray)
+        brightness = 1.0 - abs(mean_brightness - 128) / 128.0  # Optimal around 128
+
+        # 3. Contrast (standard deviation)
+        std_dev = np.std(gray)
+        contrast = min(std_dev / 64.0, 1.0)  # Normalize
+
+        # 4. Resolution
+        resolution = min(min(h, w) / 160.0, 1.0)
+
+        # 5. Frontal face check using landmarks
+        frontal = 0.85  # Default good if no landmarks
+        if landmarks is not None and len(landmarks) == 5:
+            # Check eye distance vs face width for frontal assessment
+            left_eye = landmarks[0]
+            right_eye = landmarks[1]
+            eye_distance = np.linalg.norm(left_eye - right_eye)
+            face_center_x = w / 2
+            eyes_center_x = (left_eye[0] + right_eye[0]) / 2
+            center_offset = abs(eyes_center_x - face_center_x) / w
+            frontal = max(0.5, 1.0 - center_offset * 2)
+
         metrics = {
-            'sharpness': 0.8,  # Assume good
-            'brightness': 0.8,  # Assume good
-            'contrast': 0.8,  # Assume good
-            'resolution': min((min(h, w) / 160), 1.0),
-            'frontal': 0.8  # Assume frontal
+            'sharpness': float(sharpness),
+            'brightness': float(brightness),
+            'contrast': float(contrast),
+            'resolution': float(resolution),
+            'frontal': float(frontal)
         }
 
-        # Quick overall calculation
-        metrics['overall'] = 0.8  # Default good quality for speed
+        # Overall quality (weighted average)
+        metrics['overall'] = (
+            sharpness * 0.3 +
+            brightness * 0.2 +
+            contrast * 0.2 +
+            resolution * 0.15 +
+            frontal * 0.15
+        )
 
         return metrics
 
